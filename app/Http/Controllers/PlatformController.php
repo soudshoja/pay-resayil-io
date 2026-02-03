@@ -103,7 +103,7 @@ class PlatformController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('agency_name', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                   ->orWhere('iata_number', 'like', "%{$search}%")
                   ->orWhere('company_email', 'like', "%{$search}%");
             });
@@ -152,7 +152,7 @@ class PlatformController extends Controller
     {
         $validated = $request->validate([
             'agency_name' => 'required|string|max:255',
-            'iata_number' => 'required|string|max:50|unique:agencies,iata_number,' . $agency->id,
+            'iata_number' => 'required|string|max:50|unique:clients,iata_number,' . $agency->id,
             'company_email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
@@ -162,7 +162,7 @@ class PlatformController extends Controller
         ]);
 
         $agency->update([
-            'agency_name' => $validated['agency_name'],
+            'name' => $validated['agency_name'],
             'iata_number' => $validated['iata_number'],
             'company_email' => $validated['company_email'] ?? null,
             'phone' => $validated['phone'] ?? null,
@@ -173,7 +173,7 @@ class PlatformController extends Controller
         // Update MyFatoorah credentials if provided
         if ($request->filled('myfatoorah_api_key')) {
             MyfatoorahCredential::updateOrCreate(
-                ['agency_id' => $agency->id],
+                ['client_id' => $agency->id],
                 [
                     'api_key' => $validated['myfatoorah_api_key'],
                     'is_test_mode' => $request->boolean('myfatoorah_test_mode'),
@@ -225,8 +225,8 @@ class PlatformController extends Controller
             });
         }
 
-        if ($request->filled('agency_id')) {
-            $query->where('agency_id', $request->agency_id);
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
         }
 
         if ($request->filled('role')) {
@@ -238,7 +238,7 @@ class PlatformController extends Controller
         }
 
         $users = $query->latest()->paginate(20)->withQueryString();
-        $agencies = Agency::orderBy('agency_name')->get();
+        $agencies = Agency::orderBy('name')->get();
 
         return view('platform.users.index', compact('users', 'agencies'));
     }
@@ -248,7 +248,7 @@ class PlatformController extends Controller
      */
     public function editUser(User $user)
     {
-        $agencies = Agency::orderBy('agency_name')->get();
+        $agencies = Agency::orderBy('name')->get();
         return view('platform.users.edit', compact('user', 'agencies'));
     }
 
@@ -260,8 +260,8 @@ class PlatformController extends Controller
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
-            'role' => 'required|in:super_admin,admin,accountant,agent',
-            'agency_id' => 'nullable|exists:agencies,id',
+            'role' => 'required|in:platform_owner,client_admin,sales_person,accountant',
+            'client_id' => 'nullable|exists:clients,id',
             'is_active' => 'boolean',
             'password' => 'nullable|min:6',
         ]);
@@ -270,7 +270,7 @@ class PlatformController extends Controller
             'full_name' => $validated['full_name'],
             'email' => $validated['email'],
             'role' => $validated['role'],
-            'agency_id' => $validated['agency_id'],
+            'client_id' => $validated['client_id'] ?? null,
             'is_active' => $request->boolean('is_active'),
         ];
 
@@ -362,7 +362,7 @@ class PlatformController extends Controller
         }
 
         $payments = $query->latest()->paginate(20)->withQueryString();
-        $agencies = Agency::orderBy('agency_name')->get();
+        $agencies = Agency::orderBy('name')->get();
 
         // Stats
         $stats = [
@@ -502,7 +502,7 @@ class PlatformController extends Controller
 
         $logs = $query->latest()->paginate(50)->withQueryString();
         $users = User::orderBy('full_name')->get();
-        $agencies = Agency::orderBy('agency_name')->get();
+        $agencies = Agency::orderBy('name')->get();
 
         return view('platform.logs', compact('logs', 'users', 'agencies'));
     }

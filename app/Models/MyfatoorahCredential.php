@@ -13,6 +13,7 @@ class MyfatoorahCredential extends Model
 
     protected $fillable = [
         'agency_id',
+        'client_id',
         'api_key',
         'country_code',
         'is_test_mode',
@@ -20,6 +21,19 @@ class MyfatoorahCredential extends Model
         'last_verified_at',
         'supported_methods',
     ];
+
+    /**
+     * Map client_id to agency_id for backward compatibility
+     */
+    public function setClientIdAttribute($value): void
+    {
+        $this->attributes['agency_id'] = $value;
+    }
+
+    public function getClientIdAttribute()
+    {
+        return $this->attributes['agency_id'] ?? null;
+    }
 
     protected $casts = [
         'is_test_mode' => 'boolean',

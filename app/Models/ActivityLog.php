@@ -55,7 +55,7 @@ class ActivityLog extends Model
 
         return static::create([
             'user_id' => $user?->id,
-            'agency_id' => $user?->agency_id,
+            'agency_id' => $user?->client_id ?? $user?->agency_id,
             'action' => $action,
             'description' => $description,
             'metadata' => $metadata,

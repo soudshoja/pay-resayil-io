@@ -11,91 +11,127 @@ class Agency extends Model
 {
     use HasFactory;
 
+    /**
+     * The table was renamed from 'agencies' to 'clients' in Phase 2
+     */
+    protected $table = 'clients';
+
     protected $fillable = [
-        'agency_name',
+        'name',
+        'whatsapp_number',
         'iata_number',
         'address',
         'company_email',
         'phone',
         'logo_path',
+        'service_fee_type',
+        'service_fee_value',
+        'service_fee_payer',
+        'whmcs_client_id',
+        'subscription_status',
         'timezone',
         'is_active',
     ];
 
+    /**
+     * Accessor for backward compatibility: agency_name -> name
+     */
+    public function getAgencyNameAttribute(): string
+    {
+        return $this->attributes['name'] ?? '';
+    }
+
+    /**
+     * Mutator for backward compatibility: agency_name -> name
+     */
+    public function setAgencyNameAttribute($value): void
+    {
+        $this->attributes['name'] = $value;
+    }
+
     protected $casts = [
         'is_active' => 'boolean',
+        'service_fee_value' => 'decimal:3',
     ];
 
     /**
-     * Get all users belonging to this agency
+     * Get all users belonging to this client (via client_id foreign key)
      */
     public function users(): HasMany
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class, 'client_id');
     }
 
     /**
-     * Get the admin user for this agency
+     * Get the admin user for this client
      */
     public function admin(): HasOne
     {
-        return $this->hasOne(User::class)->where('role', 'admin');
+        return $this->hasOne(User::class, 'client_id')->where('role', 'client_admin');
     }
 
     /**
-     * Get all accountants for this agency
+     * Get all accountants for this client
      */
     public function accountants(): HasMany
     {
-        return $this->hasMany(User::class)->where('role', 'accountant');
+        return $this->hasMany(User::class, 'client_id')->where('role', 'accountant');
     }
 
     /**
-     * Get all agents for this agency
+     * Get all sales persons for this client
+     */
+    public function salesPersons(): HasMany
+    {
+        return $this->hasMany(User::class, 'client_id')->where('role', 'sales_person');
+    }
+
+    /**
+     * Alias: Get all agents/sales persons for this client
      */
     public function agents(): HasMany
     {
-        return $this->hasMany(User::class)->where('role', 'agent');
+        return $this->salesPersons();
     }
 
     /**
-     * Get MyFatoorah credentials for this agency
+     * Get MyFatoorah credentials for this client
      */
     public function myfatoorahCredential(): HasOne
     {
-        return $this->hasOne(MyfatoorahCredential::class);
+        return $this->hasOne(MyfatoorahCredential::class, 'client_id');
     }
 
     /**
-     * Get all payment requests for this agency
+     * Get all payment requests for this client
      */
     public function paymentRequests(): HasMany
     {
-        return $this->hasMany(PaymentRequest::class);
+        return $this->hasMany(PaymentRequest::class, 'client_id');
     }
 
     /**
-     * Get all WhatsApp logs for this agency
+     * Get all WhatsApp logs for this client
      */
     public function whatsappLogs(): HasMany
     {
-        return $this->hasMany(WhatsappLog::class);
+        return $this->hasMany(WhatsappLog::class, 'client_id');
     }
 
     /**
-     * Get all activity logs for this agency
+     * Get all activity logs for this client
      */
     public function activityLogs(): HasMany
     {
-        return $this->hasMany(ActivityLog::class);
+        return $this->hasMany(ActivityLog::class, 'client_id');
     }
 
     /**
-     * Get webhook configurations for this agency
+     * Get webhook configurations for this client
      */
     public function webhookConfigs(): HasMany
     {
-        return $this->hasMany(WebhookConfig::class);
+        return $this->hasMany(WebhookConfig::class, 'client_id');
     }
 
     /**

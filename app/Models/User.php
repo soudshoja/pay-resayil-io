@@ -12,8 +12,16 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    /**
+     * Available roles in multi-tier structure
+     */
+    const ROLE_PLATFORM_OWNER = 'platform_owner';
+    const ROLE_CLIENT_ADMIN = 'client_admin';
+    const ROLE_SALES_PERSON = 'sales_person';
+    const ROLE_ACCOUNTANT = 'accountant';
+
     protected $fillable = [
-        'agency_id',
+        'client_id',
         'username',
         'full_name',
         'email',
@@ -23,6 +31,7 @@ class User extends Authenticatable
         'email_verified_at',
         'is_active',
         'is_platform_owner',
+        'visible_to_clients',
         'last_login_at',
         'last_login_ip',
         'preferred_locale',
@@ -41,6 +50,7 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'is_active' => 'boolean',
             'is_platform_owner' => 'boolean',
+            'visible_to_clients' => 'boolean',
             'password' => 'hashed',
         ];
     }
@@ -50,15 +60,55 @@ class User extends Authenticatable
      */
     public function isPlatformOwner(): bool
     {
-        return $this->is_platform_owner === true;
+        return $this->is_platform_owner === true || $this->role === self::ROLE_PLATFORM_OWNER;
     }
 
     /**
-     * Get the agency this user belongs to
+     * Check if user is client admin
+     */
+    public function isClientAdmin(): bool
+    {
+        return $this->role === self::ROLE_CLIENT_ADMIN;
+    }
+
+    /**
+     * Check if user is sales person
+     */
+    public function isSalesPerson(): bool
+    {
+        return $this->role === self::ROLE_SALES_PERSON;
+    }
+
+    /**
+     * Check if user is accountant
+     */
+    public function isAccountant(): bool
+    {
+        return $this->role === self::ROLE_ACCOUNTANT;
+    }
+
+    /**
+     * Get the client this user belongs to
+     */
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Alias for backward compatibility
      */
     public function agency(): BelongsTo
     {
-        return $this->belongsTo(Agency::class);
+        return $this->client();
+    }
+
+    /**
+     * Get agents managed by this sales person
+     */
+    public function managedAgents(): HasMany
+    {
+        return $this->hasMany(Agent::class, 'sales_person_id');
     }
 
     /**
@@ -86,35 +136,29 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is super admin
+     * Get transaction notes created by this user
+     */
+    public function transactionNotes(): HasMany
+    {
+        return $this->hasMany(TransactionNote::class, 'created_by_user_id');
+    }
+
+    /**
+     * Legacy role checks for backward compatibility
      */
     public function isSuperAdmin(): bool
     {
-        return $this->role === 'super_admin';
+        return $this->isPlatformOwner();
     }
 
-    /**
-     * Check if user is agency admin
-     */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin' || $this->role === 'super_admin';
+        return $this->isClientAdmin() || $this->isPlatformOwner();
     }
 
-    /**
-     * Check if user is accountant
-     */
-    public function isAccountant(): bool
-    {
-        return $this->role === 'accountant';
-    }
-
-    /**
-     * Check if user is agent
-     */
     public function isAgent(): bool
     {
-        return $this->role === 'agent';
+        return $this->isSalesPerson();
     }
 
     /**
@@ -123,7 +167,19 @@ class User extends Authenticatable
     public function hasRole(string|array $roles): bool
     {
         $roles = is_array($roles) ? $roles : [$roles];
-        return in_array($this->role, $roles);
+
+        // Map legacy roles
+        $legacyMap = [
+            'super_admin' => self::ROLE_PLATFORM_OWNER,
+            'admin' => self::ROLE_CLIENT_ADMIN,
+            'agent' => self::ROLE_SALES_PERSON,
+        ];
+
+        $normalizedRoles = array_map(function ($role) use ($legacyMap) {
+            return $legacyMap[$role] ?? $role;
+        }, $roles);
+
+        return in_array($this->role, $normalizedRoles);
     }
 
     /**
@@ -140,6 +196,14 @@ class User extends Authenticatable
     public function scopeByRole($query, string $role)
     {
         return $query->where('role', $role);
+    }
+
+    /**
+     * Scope for client-visible users only
+     */
+    public function scopeVisibleToClients($query)
+    {
+        return $query->where('visible_to_clients', true);
     }
 
     /**
@@ -177,5 +241,19 @@ class User extends Authenticatable
             'last_login_at' => now(),
             'last_login_ip' => $ip,
         ]);
+    }
+
+    /**
+     * Get role display label
+     */
+    public function getRoleLabelAttribute(): string
+    {
+        return match($this->role) {
+            self::ROLE_PLATFORM_OWNER => 'Platform Owner',
+            self::ROLE_CLIENT_ADMIN => 'Client Admin',
+            self::ROLE_SALES_PERSON => 'Sales Person',
+            self::ROLE_ACCOUNTANT => 'Accountant',
+            default => ucfirst(str_replace('_', ' ', $this->role)),
+        };
     }
 }

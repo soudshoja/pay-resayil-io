@@ -1,4 +1,4 @@
-# Pay Resayil.io - Deployment Guide
+# Collect Resayil.io - Deployment Guide
 
 ## Quick Deployment Steps
 
@@ -10,22 +10,22 @@
 
 2. **Upload ZIP File**:
    - Go to **File Manager**
-   - Navigate to `/home/resayili/public_html/`
-   - Create folder: `pay` (for pay.resayil.io subdomain)
-   - Upload `pay-resayil-io.zip` to `/home/resayili/public_html/pay/`
+   - Navigate to `/home/resayili/`
+   - Create folder: `collect.resayil.io`
+   - Upload `collect-resayil-io.zip` to `/home/resayili/collect.resayil.io/`
    - Right-click → **Extract**
 
 3. **Configure Subdomain**:
    - Go to **Subdomains**
-   - Create: `pay.resayil.io`
-   - Document Root: `/home/resayili/public_html/pay/public`
+   - Create: `collect.resayil.io`
+   - Document Root: `/home/resayili/collect.resayil.io/public`
 
 4. **Run Setup via Terminal**:
    - Go to **Terminal** in cPanel
    - Run these commands:
 
 ```bash
-cd ~/public_html/pay
+cd ~/collect.resayil.io
 
 # Install dependencies
 composer install --optimize-autoloader --no-dev
@@ -61,11 +61,11 @@ ssh resayili@resayil.io
 2. **Run deployment script**:
 ```bash
 # Create directory
-mkdir -p ~/public_html/pay
-cd ~/public_html/pay
+mkdir -p ~/collect.resayil.io
+cd ~/collect.resayil.io
 
-# Clone from GitHub (if repo created)
-git clone https://github.com/YOUR_USERNAME/pay-resayil-io.git .
+# Clone from GitHub
+git clone https://github.com/soudshoja/collect-resayil-io.git .
 
 # OR upload zip and extract manually
 
@@ -94,30 +94,30 @@ chmod -R 755 storage bootstrap/cache
 
 1. **Create GitHub Personal Access Token**:
    - Go to: https://github.com/settings/tokens/new
-   - Note: `pay-resayil-io`
+   - Note: `collect-resayil-io`
    - Scopes: `repo` (full access)
    - Generate and copy token
 
 2. **Create Repository** (run locally):
 ```bash
 curl -H "Authorization: token YOUR_TOKEN" \
-     -d '{"name":"pay-resayil-io","private":true}' \
+     -d '{"name":"collect-resayil-io","private":true}' \
      https://api.github.com/user/repos
 ```
 
 3. **Push Code**:
 ```bash
 cd ~/projects/pay-resayil-io
-git remote add origin https://github.com/YOUR_USERNAME/pay-resayil-io.git
+git remote set-url origin https://github.com/soudshoja/collect-resayil-io.git
 git push -u origin master
 ```
 
 4. **Clone on Server**:
 ```bash
 ssh resayili@resayil.io
-cd ~/public_html
-git clone https://github.com/YOUR_USERNAME/pay-resayil-io.git pay
-cd pay
+cd ~
+git clone https://github.com/soudshoja/collect-resayil-io.git collect.resayil.io
+cd collect.resayil.io
 composer install --optimize-autoloader --no-dev
 # ... continue with setup
 ```
@@ -127,7 +127,7 @@ composer install --optimize-autoloader --no-dev
 ## Post-Deployment Verification
 
 ### 1. Check Application
-- Visit: https://pay.resayil.io
+- Visit: https://collect.resayil.io
 - Should see login page with dark theme
 
 ### 2. Test Login
@@ -171,7 +171,7 @@ If database credentials differ, update `.env` accordingly.
 ## SSL Certificate
 
 1. Go to cPanel → **SSL/TLS Status**
-2. Select `pay.resayil.io`
+2. Select `collect.resayil.io`
 3. Click **Run AutoSSL**
 
 ---
@@ -198,7 +198,7 @@ php -d memory_limit=-1 /usr/local/bin/composer install
 
 ## Files Location
 
-- **ZIP Archive**: `C:\Users\User\projects\pay-resayil-io.zip`
-- **Project**: `C:\Users\User\projects\pay-resayil-io\`
-- **Server Path**: `/home/resayili/public_html/pay/`
-- **Document Root**: `/home/resayili/public_html/pay/public/`
+- **ZIP Archive**: `C:\Users\User\projects\collect-resayil-io.zip`
+- **Project**: `C:\Users\User\projects\pay-resayil-io\` (local dev folder)
+- **Server Path**: `/home/resayili/collect.resayil.io/`
+- **Document Root**: `/home/resayili/collect.resayil.io/public/`

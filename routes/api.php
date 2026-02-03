@@ -16,7 +16,7 @@ Route::get('/health', function () {
     return response()->json([
         'status' => 'ok',
         'timestamp' => now()->toIso8601String(),
-        'service' => 'pay.resayil.io',
+        'service' => 'collect.resayil.io',
     ]);
 });
 

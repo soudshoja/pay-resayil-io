@@ -133,7 +133,7 @@ class MyFatoorahService
         array $metadata = []
     ): array {
         // Get agency info from metadata or use defaults
-        $agencyName = $metadata['agency_name'] ?? 'Pay Resayil';
+        $agencyName = $metadata['agency_name'] ?? 'Collect Resayil';
         $iataNumber = $metadata['iata_number'] ?? 'N/A';
 
         return $this->executePayment(

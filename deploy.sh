@@ -1,18 +1,18 @@
 #!/bin/bash
 #
-# Pay Resayil.io - Automated Deployment Script
+# Collect Resayil.io - Automated Deployment Script
 # Run this on the cPanel server after uploading files
 #
 
 set -e
 
 echo "=========================================="
-echo "  Pay Resayil.io - Deployment Script"
+echo "  Collect Resayil.io - Deployment Script"
 echo "=========================================="
 
 # Configuration
-DEPLOY_PATH="/home/resayili/public_html/pay"
-DOMAIN="pay.resayil.io"
+DEPLOY_PATH="/home/resayili/collect.resayil.io"
+DOMAIN="collect.resayil.io"
 
 # Colors
 GREEN='\033[0;32m'
@@ -109,7 +109,7 @@ echo "=========================================="
 echo ""
 echo "Next Steps:"
 echo "1. Configure subdomain in cPanel:"
-echo "   - Subdomain: pay"
+echo "   - Subdomain: collect"
 echo "   - Document Root: $DEPLOY_PATH/public"
 echo ""
 echo "2. Enable SSL:"

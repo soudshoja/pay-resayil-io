@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Platform Admin') - Pay Resayil.io</title>
+    <title>@yield('title', 'Platform Admin') - Collect Resayil.io</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,7 +39,7 @@
                 </div>
                 <div>
                     <h1 class="font-bold gradient-text">Platform Admin</h1>
-                    <p class="text-xs text-gray-500">pay.resayil.io</p>
+                    <p class="text-xs text-gray-500">collect.resayil.io</p>
                 </div>
             </div>
 

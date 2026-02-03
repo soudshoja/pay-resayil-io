@@ -1,7 +1,7 @@
 {
-    "name": "resayil/pay-resayil-io",
+    "name": "resayil/collect-resayil-io",
     "type": "project",
-    "description": "Multi-Tenant Payment Gateway SaaS for Travel Agencies",
+    "description": "Multi-Tenant Payment Collection Platform for Travel Agencies",
     "keywords": ["laravel", "payment", "myfatoorah", "whatsapp", "saas"],
     "license": "proprietary",
     "require": {

@@ -82,12 +82,41 @@ class LoginController extends Controller
         }
 
         // Log the user in
-        Auth::login($result['user']);
+        $user = $result['user'];
+        Auth::login($user);
 
-        return redirect()->intended(route('dashboard'))
+        // Redirect based on role
+        $redirectRoute = $this->getRedirectRouteForRole($user);
+
+        return redirect()->intended($redirectRoute)
             ->with('success', __('messages.auth.welcome_back', [
-                'name' => $result['user']->full_name
+                'name' => $user->full_name
             ]));
+    }
+
+    /**
+     * Get redirect route based on user role
+     */
+    protected function getRedirectRouteForRole($user): string
+    {
+        if ($user->isPlatformOwner()) {
+            return route('platform.dashboard');
+        }
+
+        if ($user->isClientAdmin()) {
+            return route('client.dashboard');
+        }
+
+        if ($user->isSalesPerson()) {
+            return route('sales.dashboard');
+        }
+
+        if ($user->isAccountant()) {
+            return route('accountant.dashboard');
+        }
+
+        // Default fallback to legacy dashboard
+        return route('dashboard');
     }
 
     /**

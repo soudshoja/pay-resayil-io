@@ -16,26 +16,26 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $agencyId = $user->agency_id;
+        $clientId = $user->client_id;
 
         // Get statistics based on user role
-        if ($user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() || $user->isPlatformOwner()) {
             $stats = $this->getSuperAdminStats();
         } else {
-            $stats = $this->getAgencyStats($agencyId);
+            $stats = $this->getAgencyStats($clientId);
         }
 
         // Get recent payments
         $recentPayments = PaymentRequest::with(['agent', 'agency'])
-            ->when(!$user->isSuperAdmin(), function ($query) use ($agencyId) {
-                $query->where('agency_id', $agencyId);
+            ->when(!$user->isSuperAdmin() && !$user->isPlatformOwner(), function ($query) use ($clientId) {
+                $query->where('client_id', $clientId);
             })
             ->latest()
             ->take(10)
             ->get();
 
         // Get chart data (last 7 days)
-        $chartData = $this->getChartData($agencyId, $user->isSuperAdmin());
+        $chartData = $this->getChartData($clientId, $user->isSuperAdmin() || $user->isPlatformOwner());
 
         return view('dashboard.index', compact('stats', 'recentPayments', 'chartData'));
     }
@@ -63,27 +63,27 @@ class DashboardController extends Controller
     }
 
     /**
-     * Get agency statistics
+     * Get client statistics
      */
-    private function getAgencyStats(int $agencyId): array
+    private function getAgencyStats(?int $clientId): array
     {
         $today = now()->startOfDay();
         $thisMonth = now()->startOfMonth();
 
         return [
-            'total_team' => User::where('agency_id', $agencyId)->count(),
-            'total_payments' => PaymentRequest::where('agency_id', $agencyId)->count(),
-            'payments_today' => PaymentRequest::where('agency_id', $agencyId)
+            'total_team' => User::where('client_id', $clientId)->count(),
+            'total_payments' => PaymentRequest::where('client_id', $clientId)->count(),
+            'payments_today' => PaymentRequest::where('client_id', $clientId)
                 ->whereDate('created_at', $today)->count(),
-            'paid_today' => PaymentRequest::where('agency_id', $agencyId)
+            'paid_today' => PaymentRequest::where('client_id', $clientId)
                 ->paid()->whereDate('paid_at', $today)->count(),
-            'revenue_today' => PaymentRequest::where('agency_id', $agencyId)
+            'revenue_today' => PaymentRequest::where('client_id', $clientId)
                 ->paid()->whereDate('paid_at', $today)->sum('amount'),
-            'revenue_month' => PaymentRequest::where('agency_id', $agencyId)
+            'revenue_month' => PaymentRequest::where('client_id', $clientId)
                 ->paid()->where('paid_at', '>=', $thisMonth)->sum('amount'),
-            'pending_payments' => PaymentRequest::where('agency_id', $agencyId)
+            'pending_payments' => PaymentRequest::where('client_id', $clientId)
                 ->pending()->count(),
-            'messages_today' => WhatsappLog::where('agency_id', $agencyId)
+            'messages_today' => WhatsappLog::where('client_id', $clientId)
                 ->whereDate('created_at', $today)->count(),
         ];
     }
@@ -91,15 +91,15 @@ class DashboardController extends Controller
     /**
      * Get chart data for last 7 days
      */
-    private function getChartData(?int $agencyId, bool $isSuperAdmin): array
+    private function getChartData(?int $clientId, bool $isSuperAdmin): array
     {
         $days = collect(range(6, 0))->map(function ($daysAgo) {
             return now()->subDays($daysAgo)->format('Y-m-d');
         });
 
         $query = PaymentRequest::query()
-            ->when(!$isSuperAdmin && $agencyId, function ($q) use ($agencyId) {
-                $q->where('agency_id', $agencyId);
+            ->when(!$isSuperAdmin && $clientId, function ($q) use ($clientId) {
+                $q->where('client_id', $clientId);
             })
             ->whereDate('created_at', '>=', now()->subDays(7))
             ->select(

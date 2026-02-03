@@ -12,11 +12,15 @@ class PaymentRequest extends Model
 
     protected $fillable = [
         'agency_id',
+        'client_id',
+        'agent_id',
         'agent_user_id',
         'myfatoorah_invoice_id',
         'myfatoorah_payment_id',
         'payment_url',
         'amount',
+        'service_fee',
+        'total_amount',
         'currency',
         'customer_phone',
         'customer_name',
@@ -31,6 +35,19 @@ class PaymentRequest extends Model
         'track_id',
     ];
 
+    /**
+     * Map client_id to agency_id for backward compatibility
+     */
+    public function setClientIdAttribute($value): void
+    {
+        $this->attributes['agency_id'] = $value;
+    }
+
+    public function getClientIdAttribute()
+    {
+        return $this->attributes['agency_id'] ?? null;
+    }
+
     protected $casts = [
         'amount' => 'decimal:3',
         'paid_at' => 'datetime',
@@ -40,17 +57,33 @@ class PaymentRequest extends Model
     ];
 
     /**
-     * Get the agency this payment belongs to
+     * Get the agency/client this payment belongs to
      */
     public function agency(): BelongsTo
     {
-        return $this->belongsTo(Agency::class);
+        return $this->belongsTo(Agency::class, 'agency_id');
     }
 
     /**
-     * Get the agent who initiated this payment
+     * Alias: Get the client this payment belongs to
+     */
+    public function client(): BelongsTo
+    {
+        return $this->agency();
+    }
+
+    /**
+     * Get the agent (travel agency) who initiated this payment
      */
     public function agent(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Agent::class, 'agent_id');
+    }
+
+    /**
+     * Get the agent user who initiated this payment (legacy)
+     */
+    public function agentUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'agent_user_id');
     }
@@ -77,6 +110,14 @@ class PaymentRequest extends Model
     public function scopeFailed($query)
     {
         return $query->where('status', 'failed');
+    }
+
+    /**
+     * Get transaction notes
+     */
+    public function notes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TransactionNote::class, 'payment_request_id');
     }
 
     /**

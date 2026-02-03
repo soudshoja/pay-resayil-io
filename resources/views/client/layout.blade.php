@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Dashboard' }} - {{ config('app.name') }}</title>
+    <title>@yield('title', $title ?? 'Dashboard') - {{ config('app.name') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,6 +23,8 @@
                     },
                     colors: {
                         dark: {
+                            500: '#2a2a3a',
+                            700: '#1f1f2e',
                             800: '#1a1a24',
                             900: '#0a0a0f',
                         }
@@ -68,7 +70,10 @@
         .btn-gradient:hover {
             background: linear-gradient(135deg, #9333ea, #db2777);
         }
+
+        [x-cloak] { display: none !important; }
     </style>
+    @stack('styles')
 </head>
 <body class="bg-dark-900 text-gray-100 antialiased" x-data="{ sidebarOpen: window.innerWidth >= 768 }">
     <div class="flex min-h-screen">
@@ -188,7 +193,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
-                    <h1 class="text-lg font-semibold">{{ $title ?? 'Dashboard' }}</h1>
+                    <h1 class="text-lg font-semibold text-white">@yield('title', $title ?? 'Dashboard')</h1>
                 </div>
                 <div class="flex items-center gap-4">
                     <!-- Language Switcher -->
@@ -213,9 +218,11 @@
                     </div>
                 @endif
 
-                {{ $slot }}
+                {{ $slot ?? '' }}
+                @yield('content')
             </div>
         </main>
     </div>
+    @stack('scripts')
 </body>
 </html>

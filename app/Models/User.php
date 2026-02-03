@@ -22,6 +22,7 @@ class User extends Authenticatable
         'phone_verified_at',
         'email_verified_at',
         'is_active',
+        'is_platform_owner',
         'last_login_at',
         'last_login_ip',
         'preferred_locale',
@@ -39,8 +40,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'is_active' => 'boolean',
+            'is_platform_owner' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Check if user is platform owner
+     */
+    public function isPlatformOwner(): bool
+    {
+        return $this->is_platform_owner === true;
     }
 
     /**

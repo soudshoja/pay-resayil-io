@@ -29,6 +29,11 @@ Route::middleware('guest')->group(function () {
     });
 
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+
+    // Email/Password login (for internal staff: client_admin, sales_person, accountant)
+    Route::post('/login/email', [LoginController::class, 'loginWithEmail'])->name('login.email');
+
+    // Phone/OTP login (for agents)
     Route::post('/login/send-otp', [LoginController::class, 'sendOTP'])->name('login.send-otp');
     Route::get('/verify-otp', [LoginController::class, 'showVerifyOTPForm'])->name('verify-otp.show');
     Route::post('/verify-otp', [LoginController::class, 'verifyOTP'])->name('verify-otp');

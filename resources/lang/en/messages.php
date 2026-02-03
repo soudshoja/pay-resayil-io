@@ -4,7 +4,7 @@ return [
 
     // Authentication
     'auth' => [
-        'subtitle' => 'Payment Gateway Management',
+        'subtitle' => 'Payment Collection Platform',
         'welcome' => 'Welcome Back',
         'login_subtitle' => 'Sign in with your phone number',
         'phone' => 'Phone Number',
@@ -27,8 +27,8 @@ return [
 
     // OTP Messages
     'otp' => [
-        'sent' => 'Verification code sent via WhatsApp',
-        'verified' => 'Phone verified successfully',
+        'sent' => 'Verification code sent',
+        'verified' => 'Verified successfully',
         'invalid' => 'Invalid verification code',
         'expired' => 'Verification code has expired',
         'max_attempts' => 'Maximum attempts exceeded. Please request a new code',
@@ -43,6 +43,121 @@ return [
         'team' => 'Team',
         'agencies' => 'Agencies',
         'settings' => 'Settings',
+        'agents' => 'Agents',
+        'sales_persons' => 'Sales Persons',
+        'accountants' => 'Accountants',
+        'transactions' => 'Transactions',
+        'keywords' => 'Keywords',
+        'clients' => 'Clients',
+        'users' => 'Users',
+        'logs' => 'Activity Logs',
+    ],
+
+    // Roles
+    'roles' => [
+        'super_admin' => 'Super Admin',
+        'admin' => 'Admin',
+        'accountant' => 'Accountant',
+        'agent' => 'Agent',
+        'platform_owner' => 'Platform Owner',
+        'client_admin' => 'Client Admin',
+        'sales_person' => 'Sales Person',
+    ],
+
+    // Stats
+    'stats' => [
+        'total_agents' => 'Total Agents',
+        'total_transactions' => 'Total Transactions',
+        'total_revenue' => 'Total Revenue',
+        'pending_payments' => 'Pending Payments',
+        'total_clients' => 'Total Clients',
+        'total_users' => 'Total Users',
+        'today_transactions' => 'Today\'s Transactions',
+        'today_revenue' => 'Today\'s Revenue',
+    ],
+
+    // Common Words
+    'active' => 'Active',
+    'inactive' => 'Inactive',
+    'view_all' => 'View All',
+    'recent_transactions' => 'Recent Transactions',
+    'recent_agents' => 'Recent Agents',
+    'no_transactions' => 'No transactions found',
+    'no_agents' => 'No agents found',
+    'resayil_iframe_note' => 'Manage your WhatsApp conversations directly from this dashboard',
+
+    // Agent CRUD
+    'agent_created' => 'Agent created successfully',
+    'agent_updated' => 'Agent updated successfully',
+    'agent_deleted' => 'Agent deleted successfully',
+    'phone_added' => 'Phone number added successfully',
+    'phone_removed' => 'Phone number removed successfully',
+    'phone_not_authorized' => 'This phone number is not authorized',
+    'agent_inactive' => 'This agent account is inactive',
+
+    // Sales Person CRUD
+    'sales_person_created' => 'Sales person created successfully',
+    'sales_person_updated' => 'Sales person updated successfully',
+    'sales_person_deleted' => 'Sales person deleted successfully',
+
+    // Accountant CRUD
+    'accountant_created' => 'Accountant created successfully',
+    'accountant_updated' => 'Accountant updated successfully',
+    'accountant_deleted' => 'Accountant deleted successfully',
+
+    // Keywords
+    'keyword_created' => 'Keyword created successfully',
+    'keyword_updated' => 'Keyword updated successfully',
+    'keyword_deleted' => 'Keyword deleted successfully',
+
+    // Notes
+    'note_added' => 'Note added successfully',
+
+    // Settings
+    'settings_updated' => 'Settings updated successfully',
+
+    // Payment Page
+    'payment' => [
+        'title' => 'Payment',
+        'amount' => 'Amount',
+        'service_fee' => 'Service Fee',
+        'total' => 'Total',
+        'invoice_id' => 'Invoice ID',
+        'created' => 'Created',
+        'pay_now_knet' => 'Pay Now with KNET',
+        'secure_note' => 'Your payment is secured with bank-grade encryption',
+        'powered_by' => 'Powered by',
+        'success_title' => 'Payment Successful',
+        'success_heading' => 'Payment Successful!',
+        'success_message' => 'Your payment has been processed successfully.',
+        'reference' => 'Reference',
+        'date' => 'Date',
+        'agent' => 'Agent',
+        'return_whatsapp' => 'Return to WhatsApp',
+        'receipt_sent' => 'A receipt has been sent to your WhatsApp',
+        'failed_title' => 'Payment Failed',
+        'failed_heading' => 'Payment Failed',
+        'failed_message' => 'We were unable to process your payment. Please try again.',
+        'try_again' => 'Try Again',
+        'need_help' => 'Need help?',
+        'contact_support' => 'Contact Support',
+    ],
+
+    // Email OTP
+    'email' => [
+        'otp_subject' => 'Your Verification Code - Collect Resayil',
+        'otp_greeting' => 'Hello,',
+        'otp_line1' => 'Your verification code is:',
+        'otp_line2' => 'This code will expire in :minutes minutes.',
+        'otp_line3' => 'If you did not request this code, please ignore this email.',
+        'otp_thanks' => 'Thank you,',
+        'otp_team' => 'Collect Resayil Team',
+    ],
+
+    // Footer
+    'footer' => [
+        'rights' => 'All rights reserved',
+        'powered_by' => 'Powered by',
     ],
 
     // Dashboard
@@ -57,7 +172,7 @@ return [
         'view_pending' => 'View Pending',
     ],
 
-    // Payments
+    // Payments (legacy)
     'payments' => [
         'title' => 'Payments',
         'subtitle' => 'Manage payment requests',
@@ -69,41 +184,10 @@ return [
         'customer' => 'Customer',
         'customer_phone' => 'Customer Phone',
         'customer_name' => 'Customer Name',
-        'customer_name_placeholder' => 'Optional customer name',
-        'description' => 'Description',
-        'description_placeholder' => 'Optional payment description',
-        'send_whatsapp' => 'Send payment link via WhatsApp',
         'status' => 'Status',
         'date' => 'Date',
-        'details' => 'Payment Details',
-        'invoice_id' => 'Invoice ID',
-        'reference_id' => 'Reference ID',
-        'created_at' => 'Created At',
-        'paid_at' => 'Paid At',
-        'created_by' => 'Created By',
-        'payment_link' => 'Payment Link',
-        'resend_whatsapp' => 'Resend via WhatsApp',
-        'cancel' => 'Cancel Payment',
         'no_payments' => 'No payments found',
         'created' => 'Payment link created successfully',
-        'link_resent' => 'Payment link sent via WhatsApp',
-        'cancelled' => 'Payment cancelled',
-        'cannot_resend' => 'Cannot resend link for non-pending payment',
-        'cannot_cancel' => 'Cannot cancel non-pending payment',
-        'no_credentials' => 'MyFatoorah credentials not configured',
-        'success_title' => 'Payment Successful',
-        'success_message' => 'Your payment has been processed successfully',
-        'success_note' => 'You will receive a confirmation via WhatsApp shortly',
-        'error_title' => 'Payment Failed',
-        'error_message' => 'Your payment could not be processed',
-        'error_note' => 'Please try again or contact the agency',
-        'close_window' => 'You can close this window',
-        'contact_support' => 'If the problem persists, contact the agency',
-        'processing_error' => 'Payment processing error',
-        'invalid_id' => 'Invalid payment ID',
-        'not_found' => 'Payment not found',
-        'search_placeholder' => 'Search by phone, name, or invoice...',
-        'all_status' => 'All Status',
     ],
 
     // Status
@@ -113,79 +197,24 @@ return [
         'failed' => 'Failed',
         'expired' => 'Expired',
         'cancelled' => 'Cancelled',
+        'confirmed' => 'Confirmed',
     ],
 
-    // Team
+    // Team (legacy)
     'team' => [
         'title' => 'Team Members',
-        'subtitle' => 'Manage your agency team',
+        'subtitle' => 'Manage your team',
         'add_member' => 'Add Member',
         'no_members' => 'No team members found',
-        'full_name' => 'Full Name',
-        'phone' => 'Phone Number',
-        'email' => 'Email',
-        'role' => 'Role',
-        'password' => 'Password',
-        'password_confirm' => 'Confirm Password',
-        'create_button' => 'Create Member',
-        'created' => 'Team member created successfully',
-        'updated' => 'Team member updated successfully',
-        'deleted' => 'Team member deleted',
-        'status_updated' => 'Status updated',
-        'cannot_deactivate_self' => 'You cannot deactivate your own account',
-        'cannot_delete_self' => 'You cannot delete your own account',
     ],
 
-    // Roles
-    'roles' => [
-        'super_admin' => 'Super Admin',
-        'admin' => 'Admin',
-        'accountant' => 'Accountant',
-        'agent' => 'Agent',
-    ],
-
-    // Agencies
-    'agencies' => [
-        'title' => 'Agencies',
-        'created' => 'Agency created successfully',
-        'updated' => 'Agency updated successfully',
-        'deleted' => 'Agency deleted',
-        'status_updated' => 'Agency status updated',
-    ],
-
-    // Settings
+    // Settings (legacy)
     'settings' => [
         'title' => 'Settings',
         'profile' => 'Profile Settings',
         'language' => 'Language',
         'change_password' => 'Change Password',
-        'current_password' => 'Current Password',
-        'new_password' => 'New Password',
-        'confirm_password' => 'Confirm Password',
-        'update_password' => 'Update Password',
         'myfatoorah' => 'MyFatoorah Settings',
-        'myfatoorah_desc' => 'Configure payment gateway credentials',
-        'webhooks' => 'Webhooks',
-        'webhooks_desc' => 'Configure n8n and API webhooks',
-        'api_key' => 'API Key',
-        'country_code' => 'Country',
-        'mode' => 'Mode',
-        'test_mode' => 'Test Mode',
-        'live_mode' => 'Live Mode',
-        'test_connection' => 'Test Connection',
-        'last_verified' => 'Last verified',
-        'myfatoorah_updated' => 'MyFatoorah credentials updated',
-        'myfatoorah_invalid' => 'Invalid MyFatoorah credentials',
-        'myfatoorah_valid' => 'Credentials verified successfully',
-        'no_credentials' => 'No credentials configured',
-        'profile_updated' => 'Profile updated',
-        'password_changed' => 'Password changed successfully',
-        'webhook_created' => 'Webhook created',
-        'webhook_deleted' => 'Webhook deleted',
-        'webhook_updated' => 'Webhook updated',
-        'no_webhooks' => 'No webhooks configured',
-        'triggered' => 'Triggered',
-        'last_trigger' => 'Last trigger',
     ],
 
     // Common
@@ -203,32 +232,16 @@ return [
         'actions' => 'Actions',
         'active' => 'Active',
         'inactive' => 'Inactive',
-        'activate' => 'Activate',
-        'deactivate' => 'Deactivate',
         'confirm_action' => 'Are you sure?',
         'confirm_delete' => 'Are you sure you want to delete this?',
-    ],
-
-    // Footer
-    'footer' => [
-        'rights' => 'All rights reserved',
-        'powered_by' => 'Powered by',
+        'search' => 'Search...',
+        'export' => 'Export',
+        'export_csv' => 'Export CSV',
     ],
 
     // Errors
     'errors' => [
         'unauthorized' => 'You are not authorized to perform this action',
-        'no_agency' => 'You are not assigned to any agency',
-        'agency_inactive' => 'Your agency is currently inactive',
-    ],
-
-    // Activity Log
-    'activity' => [
-        'login' => 'Logged in',
-        'logout' => 'Logged out',
-        'payment_created' => 'Created payment',
-        'payment_paid' => 'Payment completed',
-        'user_created' => 'Created user',
-        'settings_updated' => 'Updated settings',
+        'not_found' => 'Resource not found',
     ],
 ];

@@ -14,6 +14,18 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/platform.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/client.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/sales.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/accountant.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/agent.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -22,6 +34,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'locale' => \App\Http\Middleware\SetLocale::class,
             'agency.active' => \App\Http\Middleware\EnsureAgencyActive::class,
             'platform.owner' => \App\Http\Middleware\EnsurePlatformOwner::class,
+            'client.admin' => \App\Http\Middleware\EnsureClientAdmin::class,
+            'sales.person' => \App\Http\Middleware\EnsureSalesPerson::class,
+            'accountant' => \App\Http\Middleware\EnsureAccountant::class,
+            'force.https' => \App\Http\Middleware\ForceHttps::class,
+            'agent.authenticated' => \App\Http\Middleware\EnsureAgentAuthenticated::class,
         ]);
 
         $middleware->web(append: [

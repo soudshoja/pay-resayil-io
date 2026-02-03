@@ -4,13 +4,13 @@ return [
 
     // Authentication
     'auth' => [
-        'subtitle' => 'نظام إدارة بوابة الدفع',
+        'subtitle' => 'منصة تحصيل المدفوعات',
         'welcome' => 'مرحباً بعودتك',
-        'login_subtitle' => 'سجل الدخول برقم هاتفك',
+        'login_subtitle' => 'تسجيل الدخول برقم الهاتف',
         'phone' => 'رقم الهاتف',
         'send_otp' => 'إرسال رمز التحقق',
         'otp_info' => 'سنرسل لك رمز التحقق عبر واتساب',
-        'verify_otp' => 'التحقق من الرمز',
+        'verify_otp' => 'تحقق من الرمز',
         'otp_sent_to' => 'تم إرسال الرمز إلى :phone',
         'enter_otp' => 'رمز التحقق',
         'verify' => 'تحقق وسجل الدخول',
@@ -19,7 +19,7 @@ return [
         'resend_otp' => 'إعادة إرسال الرمز',
         'back_to_login' => 'العودة لتسجيل الدخول',
         'logout' => 'تسجيل الخروج',
-        'logged_out' => 'تم تسجيل خروجك',
+        'logged_out' => 'تم تسجيل الخروج',
         'welcome_back' => 'مرحباً بعودتك، :name!',
         'login_success' => 'تم تسجيل الدخول بنجاح',
         'user_not_found' => 'المستخدم غير موجود أو غير نشط',
@@ -27,8 +27,8 @@ return [
 
     // OTP Messages
     'otp' => [
-        'sent' => 'تم إرسال رمز التحقق عبر واتساب',
-        'verified' => 'تم التحقق من الهاتف بنجاح',
+        'sent' => 'تم إرسال رمز التحقق',
+        'verified' => 'تم التحقق بنجاح',
         'invalid' => 'رمز التحقق غير صحيح',
         'expired' => 'انتهت صلاحية رمز التحقق',
         'max_attempts' => 'تجاوزت الحد الأقصى للمحاولات. يرجى طلب رمز جديد',
@@ -43,21 +43,136 @@ return [
         'team' => 'الفريق',
         'agencies' => 'الوكالات',
         'settings' => 'الإعدادات',
+        'agents' => 'الوكلاء',
+        'sales_persons' => 'مندوبي المبيعات',
+        'accountants' => 'المحاسبين',
+        'transactions' => 'المعاملات',
+        'keywords' => 'الكلمات المفتاحية',
+        'clients' => 'العملاء',
+        'users' => 'المستخدمين',
+        'logs' => 'سجل النشاط',
+    ],
+
+    // Roles
+    'roles' => [
+        'super_admin' => 'المسؤول الأعلى',
+        'admin' => 'المسؤول',
+        'accountant' => 'محاسب',
+        'agent' => 'وكيل',
+        'platform_owner' => 'مالك المنصة',
+        'client_admin' => 'مسؤول العميل',
+        'sales_person' => 'مندوب مبيعات',
+    ],
+
+    // Stats
+    'stats' => [
+        'total_agents' => 'إجمالي الوكلاء',
+        'total_transactions' => 'إجمالي المعاملات',
+        'total_revenue' => 'إجمالي الإيرادات',
+        'pending_payments' => 'المدفوعات المعلقة',
+        'total_clients' => 'إجمالي العملاء',
+        'total_users' => 'إجمالي المستخدمين',
+        'today_transactions' => 'معاملات اليوم',
+        'today_revenue' => 'إيرادات اليوم',
+    ],
+
+    // Common Words
+    'active' => 'نشط',
+    'inactive' => 'غير نشط',
+    'view_all' => 'عرض الكل',
+    'recent_transactions' => 'المعاملات الأخيرة',
+    'recent_agents' => 'الوكلاء الجدد',
+    'no_transactions' => 'لا توجد معاملات',
+    'no_agents' => 'لا يوجد وكلاء',
+    'resayil_iframe_note' => 'إدارة محادثات واتساب مباشرة من لوحة التحكم',
+
+    // Agent CRUD
+    'agent_created' => 'تم إنشاء الوكيل بنجاح',
+    'agent_updated' => 'تم تحديث الوكيل بنجاح',
+    'agent_deleted' => 'تم حذف الوكيل بنجاح',
+    'phone_added' => 'تمت إضافة رقم الهاتف بنجاح',
+    'phone_removed' => 'تم حذف رقم الهاتف بنجاح',
+    'phone_not_authorized' => 'رقم الهاتف هذا غير مصرح به',
+    'agent_inactive' => 'حساب الوكيل هذا غير نشط',
+
+    // Sales Person CRUD
+    'sales_person_created' => 'تم إنشاء مندوب المبيعات بنجاح',
+    'sales_person_updated' => 'تم تحديث مندوب المبيعات بنجاح',
+    'sales_person_deleted' => 'تم حذف مندوب المبيعات بنجاح',
+
+    // Accountant CRUD
+    'accountant_created' => 'تم إنشاء المحاسب بنجاح',
+    'accountant_updated' => 'تم تحديث المحاسب بنجاح',
+    'accountant_deleted' => 'تم حذف المحاسب بنجاح',
+
+    // Keywords
+    'keyword_created' => 'تم إنشاء الكلمة المفتاحية بنجاح',
+    'keyword_updated' => 'تم تحديث الكلمة المفتاحية بنجاح',
+    'keyword_deleted' => 'تم حذف الكلمة المفتاحية بنجاح',
+
+    // Notes
+    'note_added' => 'تمت إضافة الملاحظة بنجاح',
+
+    // Settings
+    'settings_updated' => 'تم تحديث الإعدادات بنجاح',
+
+    // Payment Page
+    'payment' => [
+        'title' => 'الدفع',
+        'amount' => 'المبلغ',
+        'service_fee' => 'رسوم الخدمة',
+        'total' => 'الإجمالي',
+        'invoice_id' => 'رقم الفاتورة',
+        'created' => 'تاريخ الإنشاء',
+        'pay_now_knet' => 'ادفع الآن عبر كي نت',
+        'secure_note' => 'دفعتك مؤمنة بتشفير مصرفي',
+        'powered_by' => 'مدعوم من',
+        'success_title' => 'تم الدفع بنجاح',
+        'success_heading' => 'تم الدفع بنجاح!',
+        'success_message' => 'تمت معالجة دفعتك بنجاح.',
+        'reference' => 'المرجع',
+        'date' => 'التاريخ',
+        'agent' => 'الوكيل',
+        'return_whatsapp' => 'العودة إلى واتساب',
+        'receipt_sent' => 'تم إرسال الإيصال إلى واتساب الخاص بك',
+        'failed_title' => 'فشل الدفع',
+        'failed_heading' => 'فشل الدفع',
+        'failed_message' => 'لم نتمكن من معالجة دفعتك. يرجى المحاولة مرة أخرى.',
+        'try_again' => 'حاول مرة أخرى',
+        'need_help' => 'تحتاج مساعدة؟',
+        'contact_support' => 'اتصل بالدعم',
+    ],
+
+    // Email OTP
+    'email' => [
+        'otp_subject' => 'رمز التحقق الخاص بك - كوليكت رسايل',
+        'otp_greeting' => 'مرحباً،',
+        'otp_line1' => 'رمز التحقق الخاص بك هو:',
+        'otp_line2' => 'ينتهي هذا الرمز خلال :minutes دقائق.',
+        'otp_line3' => 'إذا لم تطلب هذا الرمز، يرجى تجاهل هذا البريد.',
+        'otp_thanks' => 'شكراً لك،',
+        'otp_team' => 'فريق كوليكت رسايل',
+    ],
+
+    // Footer
+    'footer' => [
+        'rights' => 'جميع الحقوق محفوظة',
+        'powered_by' => 'مدعوم من',
     ],
 
     // Dashboard
     'dashboard' => [
         'revenue_today' => 'إيرادات اليوم (د.ك)',
-        'paid_today' => 'مدفوعات اليوم',
-        'pending' => 'قيد الانتظار',
-        'revenue_month' => 'إيرادات الشهر (د.ك)',
+        'paid_today' => 'المدفوع اليوم',
+        'pending' => 'معلق',
+        'revenue_month' => 'الإيرادات الشهرية (د.ك)',
         'weekly_overview' => 'نظرة أسبوعية',
-        'recent_payments' => 'آخر المدفوعات',
+        'recent_payments' => 'المدفوعات الأخيرة',
         'quick_actions' => 'إجراءات سريعة',
-        'view_pending' => 'عرض المعلقة',
+        'view_pending' => 'عرض المعلق',
     ],
 
-    // Payments
+    // Payments (legacy)
     'payments' => [
         'title' => 'المدفوعات',
         'subtitle' => 'إدارة طلبات الدفع',
@@ -67,125 +182,39 @@ return [
         'create_button' => 'إنشاء رابط الدفع',
         'amount' => 'المبلغ',
         'customer' => 'العميل',
-        'customer_phone' => 'هاتف العميل',
+        'customer_phone' => 'رقم هاتف العميل',
         'customer_name' => 'اسم العميل',
-        'customer_name_placeholder' => 'اسم العميل (اختياري)',
-        'description' => 'الوصف',
-        'description_placeholder' => 'وصف الدفعة (اختياري)',
-        'send_whatsapp' => 'إرسال رابط الدفع عبر واتساب',
         'status' => 'الحالة',
         'date' => 'التاريخ',
-        'details' => 'تفاصيل الدفعة',
-        'invoice_id' => 'رقم الفاتورة',
-        'reference_id' => 'رقم المرجع',
-        'created_at' => 'تاريخ الإنشاء',
-        'paid_at' => 'تاريخ الدفع',
-        'created_by' => 'أنشئ بواسطة',
-        'payment_link' => 'رابط الدفع',
-        'resend_whatsapp' => 'إعادة الإرسال عبر واتساب',
-        'cancel' => 'إلغاء الدفعة',
         'no_payments' => 'لا توجد مدفوعات',
         'created' => 'تم إنشاء رابط الدفع بنجاح',
-        'link_resent' => 'تم إرسال رابط الدفع عبر واتساب',
-        'cancelled' => 'تم إلغاء الدفعة',
-        'cannot_resend' => 'لا يمكن إعادة إرسال الرابط لدفعة غير معلقة',
-        'cannot_cancel' => 'لا يمكن إلغاء دفعة غير معلقة',
-        'no_credentials' => 'لم يتم تكوين بيانات MyFatoorah',
-        'success_title' => 'تمت عملية الدفع بنجاح',
-        'success_message' => 'تمت معالجة الدفع بنجاح',
-        'success_note' => 'ستتلقى تأكيداً عبر واتساب قريباً',
-        'error_title' => 'فشلت عملية الدفع',
-        'error_message' => 'تعذرت معالجة الدفع',
-        'error_note' => 'يرجى المحاولة مرة أخرى أو التواصل مع الوكالة',
-        'close_window' => 'يمكنك إغلاق هذه النافذة',
-        'contact_support' => 'إذا استمرت المشكلة، تواصل مع الوكالة',
-        'processing_error' => 'خطأ في معالجة الدفع',
-        'invalid_id' => 'معرف الدفع غير صالح',
-        'not_found' => 'الدفعة غير موجودة',
-        'search_placeholder' => 'بحث بالهاتف أو الاسم أو الفاتورة...',
-        'all_status' => 'كل الحالات',
     ],
 
     // Status
     'status' => [
-        'pending' => 'قيد الانتظار',
-        'paid' => 'مدفوعة',
-        'failed' => 'فاشلة',
-        'expired' => 'منتهية',
-        'cancelled' => 'ملغاة',
+        'pending' => 'معلق',
+        'paid' => 'مدفوع',
+        'failed' => 'فشل',
+        'expired' => 'منتهي',
+        'cancelled' => 'ملغي',
+        'confirmed' => 'مؤكد',
     ],
 
-    // Team
+    // Team (legacy)
     'team' => [
         'title' => 'أعضاء الفريق',
-        'subtitle' => 'إدارة فريق الوكالة',
+        'subtitle' => 'إدارة فريقك',
         'add_member' => 'إضافة عضو',
         'no_members' => 'لا يوجد أعضاء في الفريق',
-        'full_name' => 'الاسم الكامل',
-        'phone' => 'رقم الهاتف',
-        'email' => 'البريد الإلكتروني',
-        'role' => 'الصلاحية',
-        'password' => 'كلمة المرور',
-        'password_confirm' => 'تأكيد كلمة المرور',
-        'create_button' => 'إنشاء العضو',
-        'created' => 'تم إنشاء العضو بنجاح',
-        'updated' => 'تم تحديث العضو بنجاح',
-        'deleted' => 'تم حذف العضو',
-        'status_updated' => 'تم تحديث الحالة',
-        'cannot_deactivate_self' => 'لا يمكنك تعطيل حسابك الخاص',
-        'cannot_delete_self' => 'لا يمكنك حذف حسابك الخاص',
     ],
 
-    // Roles
-    'roles' => [
-        'super_admin' => 'مدير عام',
-        'admin' => 'مدير',
-        'accountant' => 'محاسب',
-        'agent' => 'موظف',
-    ],
-
-    // Agencies
-    'agencies' => [
-        'title' => 'الوكالات',
-        'created' => 'تم إنشاء الوكالة بنجاح',
-        'updated' => 'تم تحديث الوكالة بنجاح',
-        'deleted' => 'تم حذف الوكالة',
-        'status_updated' => 'تم تحديث حالة الوكالة',
-    ],
-
-    // Settings
+    // Settings (legacy)
     'settings' => [
         'title' => 'الإعدادات',
         'profile' => 'إعدادات الملف الشخصي',
         'language' => 'اللغة',
         'change_password' => 'تغيير كلمة المرور',
-        'current_password' => 'كلمة المرور الحالية',
-        'new_password' => 'كلمة المرور الجديدة',
-        'confirm_password' => 'تأكيد كلمة المرور',
-        'update_password' => 'تحديث كلمة المرور',
-        'myfatoorah' => 'إعدادات MyFatoorah',
-        'myfatoorah_desc' => 'تكوين بيانات بوابة الدفع',
-        'webhooks' => 'الويب هوك',
-        'webhooks_desc' => 'تكوين webhooks لـ n8n و API',
-        'api_key' => 'مفتاح API',
-        'country_code' => 'الدولة',
-        'mode' => 'الوضع',
-        'test_mode' => 'وضع الاختبار',
-        'live_mode' => 'الوضع الحقيقي',
-        'test_connection' => 'اختبار الاتصال',
-        'last_verified' => 'آخر تحقق',
-        'myfatoorah_updated' => 'تم تحديث بيانات MyFatoorah',
-        'myfatoorah_invalid' => 'بيانات MyFatoorah غير صالحة',
-        'myfatoorah_valid' => 'تم التحقق من البيانات بنجاح',
-        'no_credentials' => 'لم يتم تكوين البيانات',
-        'profile_updated' => 'تم تحديث الملف الشخصي',
-        'password_changed' => 'تم تغيير كلمة المرور بنجاح',
-        'webhook_created' => 'تم إنشاء الويب هوك',
-        'webhook_deleted' => 'تم حذف الويب هوك',
-        'webhook_updated' => 'تم تحديث الويب هوك',
-        'no_webhooks' => 'لا توجد webhooks مكونة',
-        'triggered' => 'تم التشغيل',
-        'last_trigger' => 'آخر تشغيل',
+        'myfatoorah' => 'إعدادات ماي فاتورة',
     ],
 
     // Common
@@ -200,26 +229,23 @@ return [
         'copy' => 'نسخ',
         'filter' => 'تصفية',
         'add' => 'إضافة',
-        'actions' => 'الإجراءات',
+        'actions' => 'إجراءات',
         'active' => 'نشط',
         'inactive' => 'غير نشط',
-        'activate' => 'تفعيل',
-        'deactivate' => 'تعطيل',
         'confirm_action' => 'هل أنت متأكد؟',
-        'confirm_delete' => 'هل أنت متأكد من الحذف؟',
+        'confirm_delete' => 'هل أنت متأكد أنك تريد حذف هذا؟',
+        'search' => 'بحث...',
+        'export' => 'تصدير',
+        'export_csv' => 'تصدير CSV',
     ],
 
-    // Footer
-    'footer' => [
-        'rights' => 'جميع الحقوق محفوظة',
-        'powered_by' => 'بدعم من',
-    ],
-
-    // Errors
-    'errors' => [
-        'unauthorized' => 'غير مصرح لك بتنفيذ هذا الإجراء',
-        'no_agency' => 'لم يتم تعيينك لأي وكالة',
-        'agency_inactive' => 'وكالتك غير نشطة حالياً',
+    // Agencies
+    'agencies' => [
+        'title' => 'الوكالات',
+        'created' => 'تم إنشاء الوكالة بنجاح',
+        'updated' => 'تم تحديث الوكالة بنجاح',
+        'deleted' => 'تم حذف الوكالة',
+        'status_updated' => 'تم تحديث حالة الوكالة',
     ],
 
     // Activity Log
@@ -230,5 +256,13 @@ return [
         'payment_paid' => 'اكتمال الدفع',
         'user_created' => 'إنشاء مستخدم',
         'settings_updated' => 'تحديث الإعدادات',
+    ],
+
+    // Errors
+    'errors' => [
+        'unauthorized' => 'غير مصرح لك بتنفيذ هذا الإجراء',
+        'not_found' => 'العنصر غير موجود',
+        'no_agency' => 'لم يتم تعيينك لأي وكالة',
+        'agency_inactive' => 'وكالتك غير نشطة حالياً',
     ],
 ];

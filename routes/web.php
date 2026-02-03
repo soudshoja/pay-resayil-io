@@ -35,9 +35,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/resend-otp', [LoginController::class, 'resendOTP'])->name('resend-otp');
 });
 
-// Payment Success/Error (public)
-Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
-Route::get('/payment/error', [PaymentController::class, 'error'])->name('payment.error');
+// Public Payment Pages
+use App\Http\Controllers\PaymentPageController;
+
+Route::prefix('pay')->group(function () {
+    Route::get('/{invoiceId}', [PaymentPageController::class, 'show'])->name('payment.show');
+    Route::post('/{invoiceId}/redirect', [PaymentPageController::class, 'redirect'])->name('payment.redirect');
+    Route::get('/{invoiceId}/callback', [PaymentPageController::class, 'callback'])->name('payment.callback');
+    Route::get('/{invoiceId}/success', [PaymentPageController::class, 'success'])->name('payment.success');
+    Route::get('/{invoiceId}/failed', [PaymentPageController::class, 'failed'])->name('payment.failed');
+});
+
+// Legacy Payment Success/Error (public)
+Route::get('/payment/success', [PaymentController::class, 'success'])->name('legacy.payment.success');
+Route::get('/payment/error', [PaymentController::class, 'error'])->name('legacy.payment.error');
 
 // Authenticated Routes
 Route::middleware(['auth', 'agency.active'])->group(function () {

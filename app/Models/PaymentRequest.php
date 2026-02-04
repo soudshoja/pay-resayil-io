@@ -11,7 +11,6 @@ class PaymentRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'agency_id',
         'client_id',
         'agent_id',
         'agent_user_id',
@@ -35,19 +34,6 @@ class PaymentRequest extends Model
         'track_id',
     ];
 
-    /**
-     * Map client_id to agency_id for backward compatibility
-     */
-    public function setClientIdAttribute($value): void
-    {
-        $this->attributes['agency_id'] = $value;
-    }
-
-    public function getClientIdAttribute()
-    {
-        return $this->attributes['agency_id'] ?? null;
-    }
-
     protected $casts = [
         'amount' => 'decimal:3',
         'paid_at' => 'datetime',
@@ -57,19 +43,11 @@ class PaymentRequest extends Model
     ];
 
     /**
-     * Get the agency/client this payment belongs to
-     */
-    public function agency(): BelongsTo
-    {
-        return $this->belongsTo(Agency::class, 'agency_id');
-    }
-
-    /**
-     * Alias: Get the client this payment belongs to
+     * Get the client this payment belongs to
      */
     public function client(): BelongsTo
     {
-        return $this->agency();
+        return $this->belongsTo(Client::class, 'client_id');
     }
 
     /**

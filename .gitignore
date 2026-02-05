@@ -1,0 +1,13 @@
+/node_modules
+/vendor
+.env
+.env.backup
+storage/*.key
+*.log
+storage/logs/*
+!storage/logs/.gitkeep
+bootstrap/cache/*
+!bootstrap/cache/.gitkeep
+/.idea
+/.vscode
+.DS_Store

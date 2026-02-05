@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Crypt;
 
 class MyfatoorahCredential extends Model
 {
@@ -27,8 +28,16 @@ class MyfatoorahCredential extends Model
         'supported_methods' => 'array',
     ];
 
-    // Note: api_key is NOT hidden - it's stored in plain text
-    // Database access is already protected by authentication
+    // Encryption for api_key field
+    public function setApiKeyAttribute($value): void
+    {
+        $this->attributes['api_key'] = Crypt::encrypt($value);
+    }
+
+    public function getApiKeyAttribute($value)
+    {
+        return Crypt::decrypt($value);
+    }
 
     /**
      * Get the client these credentials belong to

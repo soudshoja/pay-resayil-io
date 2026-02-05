@@ -25,6 +25,11 @@ class MyFatoorahWebhookController extends Controller
         try {
             $paymentId = $request->input('paymentId');
 
+            Log::info('MyFatoorah callback received', [
+                'payment_id' => $paymentId,
+                'all_params' => $request->all(),
+            ]);
+
             if (!$paymentId) {
                 Log::warning('MyFatoorah callback: Missing paymentId');
                 return redirect()->route('payment.error')
@@ -43,12 +48,23 @@ class MyFatoorahWebhookController extends Controller
                     ->with('error', __('messages.payments.not_found'));
             }
 
+            Log::info('MyFatoorah callback: Payment request found', [
+                'payment_request_id' => $paymentRequest->id,
+                'client_id' => $paymentRequest->client_id,
+                'status' => $paymentRequest->status,
+            ]);
+
             // Get payment status from MyFatoorah
-            $myfatoorah = new MyFatoorahService($paymentRequest->agency_id);
+            $myfatoorah = new MyFatoorahService($paymentRequest->client_id);
             $statusResponse = $myfatoorah->getPaymentStatus($paymentId);
 
             $invoiceStatus = $statusResponse['Data']['InvoiceStatus'] ?? 'Pending';
             $transaction = $statusResponse['Data']['InvoiceTransactions'][0] ?? null;
+
+            Log::info('MyFatoorah callback: Payment status retrieved', [
+                'invoice_status' => $invoiceStatus,
+                'has_transaction' => !is_null($transaction),
+            ]);
 
             if ($invoiceStatus === 'Paid') {
                 $paymentRequest->update([
@@ -70,12 +86,21 @@ class MyFatoorahWebhookController extends Controller
                 // Notify accountants
                 $this->notifyAccountants($paymentRequest, $statusResponse);
 
+                Log::info('MyFatoorah callback: Payment marked as paid', [
+                    'payment_request_id' => $paymentRequest->id,
+                ]);
+
                 return redirect()->route('payment.success')
                     ->with('success', __('messages.payments.success'));
             } else {
                 $paymentRequest->update([
                     'status' => 'failed',
                     'myfatoorah_response' => $statusResponse,
+                ]);
+
+                Log::info('MyFatoorah callback: Payment not paid', [
+                    'payment_request_id' => $paymentRequest->id,
+                    'invoice_status' => $invoiceStatus,
                 ]);
 
                 return redirect()->route('payment.error')
@@ -85,6 +110,7 @@ class MyFatoorahWebhookController extends Controller
         } catch (\Exception $e) {
             Log::error('MyFatoorah Callback Error', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'request' => $request->all()
             ]);
 
@@ -100,6 +126,11 @@ class MyFatoorahWebhookController extends Controller
     {
         $paymentId = $request->input('paymentId');
 
+        Log::info('MyFatoorah error callback', [
+            'payment_id' => $paymentId,
+            'all_params' => $request->all(),
+        ]);
+
         if ($paymentId) {
             $paymentRequest = PaymentRequest::where('myfatoorah_invoice_id', $paymentId)
                 ->orWhere('myfatoorah_payment_id', $paymentId)
@@ -107,6 +138,9 @@ class MyFatoorahWebhookController extends Controller
 
             if ($paymentRequest && $paymentRequest->isPending()) {
                 $paymentRequest->update(['status' => 'failed']);
+                Log::info('MyFatoorah error callback: Payment marked as failed', [
+                    'payment_request_id' => $paymentRequest->id,
+                ]);
             }
         }
 
@@ -128,6 +162,7 @@ class MyFatoorahWebhookController extends Controller
             $transactionStatus = $payload['Data']['TransactionStatus'] ?? null;
 
             if (!$invoiceId) {
+                Log::warning('MyFatoorah webhook: Missing invoice ID');
                 return response()->json(['error' => 'Missing invoice ID'], 400);
             }
 
@@ -140,6 +175,9 @@ class MyFatoorahWebhookController extends Controller
 
             // Already processed
             if ($paymentRequest->isPaid()) {
+                Log::info('MyFatoorah webhook: Payment already processed', [
+                    'payment_request_id' => $paymentRequest->id,
+                ]);
                 return response()->json(['success' => true, 'message' => 'Already processed']);
             }
 
@@ -163,14 +201,23 @@ class MyFatoorahWebhookController extends Controller
                 // Notify accountants
                 $this->notifyAccountants($paymentRequest, $payload);
 
+                Log::info('MyFatoorah webhook: Payment marked as paid', [
+                    'payment_request_id' => $paymentRequest->id,
+                ]);
+
                 return response()->json(['success' => true]);
             }
+
+            Log::info('MyFatoorah webhook: Transaction status ignored', [
+                'status' => $transactionStatus,
+            ]);
 
             return response()->json(['success' => true, 'status' => 'ignored']);
 
         } catch (\Exception $e) {
             Log::error('MyFatoorah Webhook Error', [
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
                 'payload' => $request->all()
             ]);
 
@@ -179,17 +226,17 @@ class MyFatoorahWebhookController extends Controller
     }
 
     /**
-     * Notify all accountants in the agency
+     * Notify all accountants in the client organization
      */
     private function notifyAccountants(PaymentRequest $paymentRequest, array $paymentData): void
     {
-        $accountants = User::where('agency_id', $paymentRequest->agency_id)
+        $accountants = User::where('client_id', $paymentRequest->client_id)
             ->where('role', 'accountant')
             ->where('is_active', true)
             ->get();
 
         // Also notify admins
-        $admins = User::where('agency_id', $paymentRequest->agency_id)
+        $admins = User::where('client_id', $paymentRequest->client_id)
             ->where('role', 'admin')
             ->where('is_active', true)
             ->get();
@@ -197,7 +244,7 @@ class MyFatoorahWebhookController extends Controller
         $recipients = $accountants->merge($admins);
 
         if ($recipients->isEmpty()) {
-            Log::warning('No accountants to notify', ['agency_id' => $paymentRequest->agency_id]);
+            Log::warning('No accountants/admins to notify', ['client_id' => $paymentRequest->client_id]);
             return;
         }
 
@@ -205,16 +252,21 @@ class MyFatoorahWebhookController extends Controller
             ?? $paymentData['Data']['InvoiceTransactions'][0]['ReferenceId']
             ?? 'N/A';
 
+        Log::info('Notifying accountants/admins', [
+            'client_id' => $paymentRequest->client_id,
+            'recipient_count' => $recipients->count(),
+        ]);
+
         foreach ($recipients as $recipient) {
             try {
                 $this->whatsappService->sendPaymentConfirmation(
                     phoneNumber: $recipient->username,
-                    agencyName: $paymentRequest->agency->agency_name,
+                    agencyName: $paymentRequest->client->name ?? 'Unknown',
                     amount: $paymentRequest->amount,
                     currency: $paymentRequest->currency,
                     customerPhone: $paymentRequest->customer_phone ?? 'N/A',
                     referenceId: $referenceId,
-                    agencyId: $paymentRequest->agency_id
+                    agencyId: $paymentRequest->client_id
                 );
             } catch (\Exception $e) {
                 Log::error('Failed to notify accountant', [

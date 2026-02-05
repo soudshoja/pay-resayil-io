@@ -5,14 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Crypt;
 
 class MyfatoorahCredential extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'agency_id',
         'client_id',
         'api_key',
         'country_code',
@@ -22,19 +20,6 @@ class MyfatoorahCredential extends Model
         'supported_methods',
     ];
 
-    /**
-     * Map client_id to agency_id for backward compatibility
-     */
-    public function setClientIdAttribute($value): void
-    {
-        $this->attributes['agency_id'] = $value;
-    }
-
-    public function getClientIdAttribute()
-    {
-        return $this->attributes['agency_id'] ?? null;
-    }
-
     protected $casts = [
         'is_test_mode' => 'boolean',
         'is_active' => 'boolean',
@@ -42,40 +27,15 @@ class MyfatoorahCredential extends Model
         'supported_methods' => 'array',
     ];
 
-    protected $hidden = [
-        'api_key',
-    ];
+    // Note: api_key is NOT hidden - it's stored in plain text
+    // Database access is already protected by authentication
 
     /**
-     * Get the agency these credentials belong to
+     * Get the client these credentials belong to
      */
-    public function agency(): BelongsTo
+    public function client(): BelongsTo
     {
-        return $this->belongsTo(Agency::class);
-    }
-
-    /**
-     * Encrypt API key before saving
-     */
-    public function setApiKeyAttribute($value): void
-    {
-        $this->attributes['api_key'] = Crypt::encryptString($value);
-    }
-
-    /**
-     * Decrypt API key when accessing
-     */
-    public function getApiKeyAttribute($value): ?string
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        try {
-            return Crypt::decryptString($value);
-        } catch (\Exception $e) {
-            return null;
-        }
+        return $this->belongsTo(Client::class);
     }
 
     /**

@@ -13,19 +13,42 @@ class MyFatoorahService
     private string $baseUrl;
     private bool $isTestMode;
     private string $countryCode;
-    private ?int $agencyId;
+    private ?int $clientId;
 
-    public function __construct(?int $agencyId = null)
+    public function __construct(?int $clientId = null)
     {
-        $this->agencyId = $agencyId;
+        $this->clientId = $clientId;
 
-        if ($agencyId) {
-            $credentials = MyfatoorahCredential::where('agency_id', $agencyId)
+        Log::info('MyFatoorahService: Initializing', [
+            'client_id' => $clientId,
+        ]);
+
+        if ($clientId) {
+            $credentials = MyfatoorahCredential::where('client_id', $clientId)
                 ->where('is_active', true)
                 ->first();
 
             if (!$credentials) {
-                throw new \Exception('MyFatoorah credentials not configured for this agency');
+                Log::error('MyFatoorahService: No active credentials found', [
+                    'client_id' => $clientId,
+                ]);
+                throw new \Exception("MyFatoorah credentials not configured for client ID: {$clientId}");
+            }
+
+            Log::info('MyFatoorahService: Credentials found', [
+                'client_id' => $clientId,
+                'credential_id' => $credentials->id,
+                'is_test_mode' => $credentials->is_test_mode,
+                'country_code' => $credentials->country_code,
+                'api_key_length' => strlen($credentials->api_key ?? ''),
+            ]);
+
+            if (empty($credentials->api_key)) {
+                Log::error('MyFatoorahService: API key is empty', [
+                    'client_id' => $clientId,
+                    'credential_id' => $credentials->id,
+                ]);
+                throw new \Exception("MyFatoorah API key is empty for client ID: {$clientId}");
             }
 
             $this->apiKey = $credentials->api_key;
@@ -34,6 +57,7 @@ class MyFatoorahService
             $this->baseUrl = $credentials->base_url;
         } else {
             // Fallback to default config
+            Log::info('MyFatoorahService: Using default config (no client_id)');
             $this->apiKey = config('services.myfatoorah.api_key');
             $this->isTestMode = config('services.myfatoorah.test_mode', true);
             $this->countryCode = config('services.myfatoorah.country_code', 'KWT');
@@ -46,17 +70,28 @@ class MyFatoorahService
      */
     public function getKnetPaymentMethodId(float $amount): int
     {
-        $cacheKey = 'myfatoorah_knet_id_' . ($this->agencyId ?? 'default');
+        $cacheKey = 'myfatoorah_knet_id_' . ($this->clientId ?? 'default');
 
         return Cache::remember($cacheKey, 3600, function () use ($amount) {
+            Log::info('MyFatoorahService: Getting KNET payment method ID', [
+                'amount' => $amount,
+                'client_id' => $this->clientId,
+            ]);
+
             $response = $this->initiatePayment($amount, 'KWD');
 
             foreach ($response['Data']['PaymentMethods'] as $method) {
                 if ($method['PaymentMethodCode'] === 'kn') {
+                    Log::info('MyFatoorahService: Found KNET method', [
+                        'payment_method_id' => $method['PaymentMethodId'],
+                    ]);
                     return $method['PaymentMethodId'];
                 }
             }
 
+            Log::error('MyFatoorahService: KNET method not found in response', [
+                'available_methods' => collect($response['Data']['PaymentMethods'])->pluck('PaymentMethodCode'),
+            ]);
             throw new \Exception('KNET payment method not available');
         });
     }
@@ -66,6 +101,11 @@ class MyFatoorahService
      */
     public function initiatePayment(float $amount, string $currency = 'KWD'): array
     {
+        Log::info('MyFatoorahService: Initiating payment', [
+            'amount' => $amount,
+            'currency' => $currency,
+        ]);
+
         return $this->request('POST', '/v2/InitiatePayment', [
             'InvoiceAmount' => $amount,
             'CurrencyIso' => $currency,
@@ -86,6 +126,13 @@ class MyFatoorahService
         ?string $errorUrl = null,
         ?array $metadata = null
     ): array {
+        Log::info('MyFatoorahService: Executing payment', [
+            'amount' => $amount,
+            'agency_name' => $agencyName,
+            'customer_name' => $customerName,
+            'customer_phone' => $customerPhone,
+        ]);
+
         // Get KNET payment method ID
         $paymentMethodId = $this->getKnetPaymentMethodId($amount);
 
@@ -119,6 +166,13 @@ class MyFatoorahService
             ], $metadata ?? [])),
         ];
 
+        Log::info('MyFatoorahService: ExecutePayment payload', [
+            'payment_method_id' => $paymentMethodId,
+            'invoice_value' => $amount,
+            'callback_url' => $payload['CallBackUrl'],
+            'error_url' => $payload['ErrorUrl'],
+        ]);
+
         return $this->request('POST', '/v2/ExecutePayment', $payload);
     }
 
@@ -151,6 +205,11 @@ class MyFatoorahService
      */
     public function getPaymentStatus(string $key, string $keyType = 'PaymentId'): array
     {
+        Log::info('MyFatoorahService: Getting payment status', [
+            'key' => $key,
+            'key_type' => $keyType,
+        ]);
+
         return $this->request('POST', '/v2/getPaymentStatus', [
             'Key' => $key,
             'KeyType' => $keyType,
@@ -179,6 +238,12 @@ class MyFatoorahService
      */
     private function request(string $method, string $endpoint, array $data = []): array
     {
+        Log::info('MyFatoorahService: Making API request', [
+            'method' => $method,
+            'endpoint' => $endpoint,
+            'base_url' => $this->baseUrl,
+        ]);
+
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->apiKey,
@@ -188,6 +253,12 @@ class MyFatoorahService
             ]);
 
             $result = $response->json();
+
+            Log::info('MyFatoorahService: API response received', [
+                'endpoint' => $endpoint,
+                'status_code' => $response->status(),
+                'is_success' => $result['IsSuccess'] ?? false,
+            ]);
 
             if (!$response->successful() || !($result['IsSuccess'] ?? false)) {
                 $errors = collect($result['ValidationErrors'] ?? [])
@@ -199,10 +270,12 @@ class MyFatoorahService
                     $message .= ': ' . $errors;
                 }
 
-                Log::error('MyFatoorah API Error', [
+                Log::error('MyFatoorahService: API Error', [
                     'endpoint' => $endpoint,
                     'error' => $message,
-                    'response' => $result
+                    'status_code' => $response->status(),
+                    'response' => $result,
+                    'request_data' => $data,
                 ]);
 
                 throw new \Exception($message);
@@ -211,9 +284,10 @@ class MyFatoorahService
             return $result;
 
         } catch (\Illuminate\Http\Client\RequestException $e) {
-            Log::error('MyFatoorah HTTP Error', [
+            Log::error('MyFatoorahService: HTTP Error', [
                 'endpoint' => $endpoint,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'base_url' => $this->baseUrl,
             ]);
 
             throw new \Exception('Payment service unavailable: ' . $e->getMessage());

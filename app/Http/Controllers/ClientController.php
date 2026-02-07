@@ -594,6 +594,16 @@ class ClientController extends Controller
     }
 
     /**
+     * WhatsApp Management
+     */
+    public function whatsapp()
+    {
+        $client = auth()->user()->client;
+
+        return view('client.whatsapp', compact('client'));
+    }
+
+    /**
      * Client Settings
      */
     public function settings()

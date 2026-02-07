@@ -54,6 +54,9 @@ Route::prefix('client')->middleware(['auth', 'client.admin'])->name('client.')->
     Route::post('/keywords/{keyword}/toggle', [ClientController::class, 'toggleKeyword'])->name('keywords.toggle');
     Route::delete('/keywords/{keyword}', [ClientController::class, 'destroyKeyword'])->name('keywords.destroy');
 
+    // WhatsApp
+    Route::get('/whatsapp', [ClientController::class, 'whatsapp'])->name('whatsapp');
+
     // Settings
     Route::get('/settings', [ClientController::class, 'settings'])->name('settings');
     Route::put('/settings', [ClientController::class, 'updateSettings'])->name('settings.update');

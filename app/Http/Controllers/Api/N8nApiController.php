@@ -7,6 +7,7 @@ use App\Models\Agent;
 use App\Models\AgentAuthorizedPhone;
 use App\Models\Client;
 use App\Models\PaymentRequest;
+use App\Models\WhatsappKeyword;
 use App\Services\MyFatoorahService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -325,6 +326,61 @@ class N8nApiController extends Controller
                 'company_name' => $payment->agent->company_name,
                 'iata_number' => $payment->agent->iata_number,
             ] : null,
+        ]);
+    }
+
+    /**
+     * Check keyword in message and return matching action
+     * POST /api/n8n/check-keyword
+     */
+    public function checkKeyword(Request $request)
+    {
+        $validated = $request->validate([
+            'message' => 'required|string',
+            'client_id' => 'required|integer',
+        ]);
+
+        $message = $validated['message'];
+        $clientId = $validated['client_id'];
+
+        $client = Client::where('id', $clientId)->where('is_active', true)->first();
+
+        if (!$client) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Client not found',
+            ], 404);
+        }
+
+        $keyword = WhatsappKeyword::findMatch($clientId, $message);
+
+        if (!$keyword) {
+            return response()->json([
+                'success' => false,
+                'matched' => false,
+                'error' => 'No matching keyword found',
+                'message' => $message,
+                'client_id' => $clientId,
+            ]);
+        }
+
+        // Extract amount from message if this is a payment action
+        $amount = null;
+        if ($keyword->action === 'payment_request') {
+            preg_match('/(\d+(?:\.\d{1,3})?)/', $message, $matches);
+            $amount = isset($matches[1]) ? (float) $matches[1] : null;
+        }
+
+        return response()->json([
+            'success' => true,
+            'matched' => true,
+            'keyword' => $keyword->keyword,
+            'action' => $keyword->action,
+            'action_label' => $keyword->action_label,
+            'amount' => $amount,
+            'response_template' => $keyword->response_template,
+            'client_id' => $clientId,
+            'client_name' => $client->name,
         ]);
     }
 }

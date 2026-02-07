@@ -45,6 +45,10 @@ Route::prefix('n8n')->middleware('throttle:100,1')->group(function () {
     Route::post('/payment-completed', [N8nApiController::class, 'paymentCompleted'])
         ->name('api.n8n.payment-completed');
 
+    // Check keyword in message
+    Route::post('/check-keyword', [N8nApiController::class, 'checkKeyword'])
+        ->name('api.n8n.check-keyword');
+
     // Get payment status
     Route::get('/payment/{invoiceId}/status', [N8nApiController::class, 'getPaymentStatus'])
         ->name('api.n8n.payment-status');

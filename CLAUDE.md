@@ -1,103 +1,53 @@
-# Collect Resayil.io - Multi-Tenant Payment Collection Platform
+# Claude Code Project Instructions
 
-## Project Overview
-- **Name:** collect.resayil.io
-- **Type:** Laravel 11 Multi-Tenant SaaS
-- **Purpose:** Travel agency payment collection platform with WhatsApp automation
-- **Stack:** Laravel 11, MySQL, MyFatoorah KNET, Resayil WhatsApp API
-- **Deployment:** cPanel at resayil.io
-- **UI:** Bold & Modern dark theme with purple/pink gradients
+## This Project
+Collect Resayil Gateway - Multi-tenant KNET payment platform for travel agencies.
+Laravel 11 + Tailwind + Alpine.js + MyFatoorah + WhatsApp automation.
 
-## Quick Start
+## Skills to Read
+Before making changes, read these skill files:
+- ~/.claude/skills/laravel-resayil-gateway/SKILL.md (MAIN - read first)
+- ~/.claude/skills/myfatoorah-integration/SKILL.md (payment gateway)
+- ~/.claude/skills/resayil-whatsapp-api/SKILL.md (WhatsApp API)
 
+## Credentials
+All secrets in: ~/.secrets/resayil-gateway.env
+NEVER hardcode credentials. NEVER commit secrets to Git.
+
+## Key Rules
+1. Read laravel-resayil-gateway SKILL.md ENTIRELY before any changes
+2. Check Laravel logs: tail -50 storage/logs/laravel.log
+3. Test changes on ONE page before applying everywhere
+4. Blade uses @extends pattern, NOT components - don't mix
+5. SSH blocked by Cloudflare on prod - deploy via GitHub + cPanel
+6. Last working commit: 358c07a
+
+## Deploy to Production
 ```bash
-# Install dependencies
-composer install
-
-# Copy environment file (already configured)
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-
-# Run migrations
-php artisan migrate
-
-# Seed test data
-php artisan db:seed
-
-# Start development server
-php artisan serve
+# On cPanel Terminal:
+cd ~/collect.resayil.io
+git pull origin main
+php artisan view:clear && php artisan cache:clear && php artisan config:clear && php artisan route:clear
 ```
 
-## Database Credentials
-```
-DB_CONNECTION=mysql
-DB_HOST=localhost
-DB_PORT=3306
-DB_DATABASE=resayili_resayil_gateway
-DB_USERNAME=resayili_resayil_user
-DB_PASSWORD=Resayil2025!Gateway
-```
+## MCP Tools
+- context7: "use context7" for Laravel/Tailwind live docs
+- playwright: "test login with playwright" for browser testing
+- figma: paste Figma link + "implement this design"
+- github: manage PRs, issues, branches
 
-## API Credentials
+## Tech Stack
+- Backend: Laravel 11, PHP 8.2+, MySQL 8.0
+- Frontend: Blade + Tailwind CSS (CDN) + Alpine.js (CDN)
+- Theme: Dark (#0a0a0f), purple/pink gradients, glass morphism
+- Fonts: Space Grotesk (LTR), Tajawal (RTL)
+- APIs: MyFatoorah KNET, Resayil WhatsApp, n8n
 
-### Resayil WhatsApp API
-```
-RESAYIL_BASE_URL=https://wa.resayil.io/api/v1
-RESAYIL_API_KEY=f0bd277a312a53381db25d5af1e3a5c23f5dc869a8d4d667aab54a53293334adc4764ce2dadcfe87
-```
-
-### MyFatoorah (Test Mode)
-```
-MYFATOORAH_BASE_URL=https://apitest.myfatoorah.com
-MYFATOORAH_API_KEY=SK_KWT_wI6G2SOOeAogGyudgauY0dAEQAneSTSkSGMT8s49yyZzcKIK8MMw2bU9cj6VpiCo
-MYFATOORAH_TEST_MODE=true
-```
-
-## Test Accounts (after seeding)
-
-| Role | Phone | Password | Agency |
-|------|-------|----------|--------|
-| Super Admin | +96500000000 | admin123 | - |
-| Admin | +96511111111 | password123 | City Tours |
-| Accountant | +96522222222 | password123 | City Tours |
-| Agent | +96533333333 | password123 | City Tours |
-
-## Platform Owner
-| Email | Password |
-|-------|----------|
-| soud@alphia.net | (set during setup) |
-
-## API Endpoints
-
-### n8n Webhooks
-```
-POST /api/n8n/incoming-message    # Handle WhatsApp incoming
-POST /api/n8n/generate-payment    # Generate payment link
-GET  /api/n8n/payment/{id}/status # Get payment status
-```
-
-### MyFatoorah Webhooks
-```
-GET  /api/myfatoorah/callback     # Payment callback
-POST /api/myfatoorah/webhook      # Server webhook
-```
-
-## User Roles
-- **super_admin:** All access, manage agencies
-- **admin:** Manage agency, team, settings
-- **accountant:** View payments, receive notifications
-- **agent:** Create payments only
-
-## Platform Admin URLs
-- Login: https://collect.resayil.io/platform/login
-- Dashboard: https://collect.resayil.io/platform/dashboard
-- Agencies: https://collect.resayil.io/platform/agencies
-- Users: https://collect.resayil.io/platform/users
-- Payments: https://collect.resayil.io/platform/payments
-- Settings: https://collect.resayil.io/platform/settings
-
-## Build Date
-- Started: 2026-02-03
-- Status: Complete
+## SSH Access to Production (cPanel)
+- Alias: `ssh cpanel` (passwordless)
+- Real IP: 152.53.86.223 (bypasses Cloudflare)
+- User: resayili
+- Project path on cPanel: ~/collect.resayil.io
+- Deploy: `~/deploy-resayil.sh` (push to GitHub + pull on cPanel + clear caches)
+- Check logs: `ssh cpanel 'tail -50 ~/collect.resayil.io/storage/logs/laravel.log'`
+- Run artisan: `ssh cpanel 'cd ~/collect.resayil.io && php artisan migrate:status'`

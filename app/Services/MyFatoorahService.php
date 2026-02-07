@@ -51,8 +51,7 @@ class MyFatoorahService
                 throw new \Exception("MyFatoorah API key is empty for client ID: {$clientId}");
             }
 
-            // Decrypt API key for secure storage
-            $this->apiKey = decrypt($credentials->api_key);
+            $this->apiKey = $credentials->api_key;
             $this->isTestMode = $credentials->is_test_mode;
             $this->countryCode = $credentials->country_code;
             $this->baseUrl = $credentials->base_url;

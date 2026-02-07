@@ -68,23 +68,9 @@ class PaymentPageController extends Controller
                 ->with('error', 'This payment is no longer pending.');
         }
 
-        // Use the myfatoorah_invoice_id as the canonical identifier for callback URLs
-        $canonicalId = $payment->myfatoorah_invoice_id ?? $payment->id;
-
-        // Check if existing payment_url has matching callback URLs
-        $urlIsValid = false;
-        if ($payment->payment_url) {
-            // Verify the stored URL callbacks point to the correct invoiceId
-            $expectedCallback = route('payment.callback', $canonicalId);
-            // If we can't verify, regenerate to be safe
-            \Log::info('Payment redirect: checking stored URL', [
-                'invoice_id' => $invoiceId,
-                'canonical_id' => $canonicalId,
-                'has_url' => true,
-            ]);
-            // Always regenerate for pending payments to ensure callback URLs are correct
-            $urlIsValid = false;
-        }
+        // Use the stable database ID for callback URLs (myfatoorah_invoice_id changes
+        // each time ExecutePayment is called, so it cannot be used as a stable reference)
+        $canonicalId = $payment->id;
 
         // Create new payment via MyFatoorah with correct callback URLs
         try {

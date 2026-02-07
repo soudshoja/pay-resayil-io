@@ -9,14 +9,28 @@ use Illuminate\Http\Request;
 class PaymentPageController extends Controller
 {
     /**
+     * Find a payment by multiple identifier fields
+     */
+    private function findPayment(string $invoiceId, array $with = [])
+    {
+        $query = PaymentRequest::where('myfatoorah_invoice_id', $invoiceId)
+            ->orWhere('id', $invoiceId)
+            ->orWhere('reference_id', $invoiceId)
+            ->orWhere('track_id', $invoiceId);
+
+        if (!empty($with)) {
+            $query->with($with);
+        }
+
+        return $query->firstOrFail();
+    }
+
+    /**
      * Show Custom Payment Page
      */
     public function show(string $invoiceId)
     {
-        $payment = PaymentRequest::where('myfatoorah_invoice_id', $invoiceId)
-            ->orWhere('id', $invoiceId)
-            ->with(['client', 'agent'])
-            ->firstOrFail();
+        $payment = $this->findPayment($invoiceId, ['client', 'agent']);
 
         // Check if already paid
         if ($payment->status === 'paid') {
@@ -47,21 +61,32 @@ class PaymentPageController extends Controller
      */
     public function redirect(string $invoiceId)
     {
-        $payment = PaymentRequest::where('myfatoorah_invoice_id', $invoiceId)
-            ->orWhere('id', $invoiceId)
-            ->firstOrFail();
+        $payment = $this->findPayment($invoiceId);
 
         if ($payment->status !== 'pending') {
             return redirect()->route('payment.show', $invoiceId)
                 ->with('error', 'This payment is no longer pending.');
         }
 
-        // If we have a stored MyFatoorah URL, redirect to it
+        // Use the myfatoorah_invoice_id as the canonical identifier for callback URLs
+        $canonicalId = $payment->myfatoorah_invoice_id ?? $payment->id;
+
+        // Check if existing payment_url has matching callback URLs
+        $urlIsValid = false;
         if ($payment->payment_url) {
-            return redirect()->away($payment->payment_url);
+            // Verify the stored URL callbacks point to the correct invoiceId
+            $expectedCallback = route('payment.callback', $canonicalId);
+            // If we can't verify, regenerate to be safe
+            \Log::info('Payment redirect: checking stored URL', [
+                'invoice_id' => $invoiceId,
+                'canonical_id' => $canonicalId,
+                'has_url' => true,
+            ]);
+            // Always regenerate for pending payments to ensure callback URLs are correct
+            $urlIsValid = false;
         }
 
-        // Otherwise create new payment via MyFatoorah
+        // Create new payment via MyFatoorah with correct callback URLs
         try {
             $myfatoorah = new MyFatoorahService($payment->client_id);
 
@@ -71,14 +96,28 @@ class PaymentPageController extends Controller
                 iataNumber: $payment->agent?->iata_number ?? 'N/A',
                 customerName: $payment->customer_name,
                 customerPhone: $payment->customer_phone,
-                callbackUrl: route('payment.callback', $invoiceId),
-                errorUrl: route('payment.failed', $invoiceId)
+                callbackUrl: route('payment.callback', $canonicalId),
+                errorUrl: route('payment.failed', $canonicalId)
             );
 
             if ($response['IsSuccess'] && isset($response['Data']['PaymentURL'])) {
-                $payment->update([
+                $updateData = [
                     'payment_url' => $response['Data']['PaymentURL'],
-                    'myfatoorah_invoice_id' => $response['Data']['InvoiceId'] ?? $payment->myfatoorah_invoice_id,
+                ];
+
+                // Update myfatoorah_invoice_id if a new one was returned
+                if (isset($response['Data']['InvoiceId'])) {
+                    $updateData['myfatoorah_invoice_id'] = $response['Data']['InvoiceId'];
+                }
+
+                $payment->update($updateData);
+
+                \Log::info('Payment redirect: new MyFatoorah URL generated', [
+                    'invoice_id' => $invoiceId,
+                    'canonical_id' => $canonicalId,
+                    'new_mf_invoice_id' => $response['Data']['InvoiceId'] ?? 'N/A',
+                    'callback_url' => route('payment.callback', $canonicalId),
+                    'error_url' => route('payment.failed', $canonicalId),
                 ]);
 
                 return redirect()->away($response['Data']['PaymentURL']);
@@ -100,9 +139,7 @@ class PaymentPageController extends Controller
      */
     public function callback(Request $request, string $invoiceId)
     {
-        $payment = PaymentRequest::where('myfatoorah_invoice_id', $invoiceId)
-            ->orWhere('id', $invoiceId)
-            ->firstOrFail();
+        $payment = $this->findPayment($invoiceId);
 
         $paymentId = $request->input('paymentId');
 
@@ -145,10 +182,7 @@ class PaymentPageController extends Controller
      */
     public function success(string $invoiceId)
     {
-        $payment = PaymentRequest::where('myfatoorah_invoice_id', $invoiceId)
-            ->orWhere('id', $invoiceId)
-            ->with(['client', 'agent'])
-            ->firstOrFail();
+        $payment = $this->findPayment($invoiceId, ['client', 'agent']);
 
         return view('payment.success', compact('payment'));
     }
@@ -158,10 +192,7 @@ class PaymentPageController extends Controller
      */
     public function failed(string $invoiceId)
     {
-        $payment = PaymentRequest::where('myfatoorah_invoice_id', $invoiceId)
-            ->orWhere('id', $invoiceId)
-            ->with(['client', 'agent'])
-            ->firstOrFail();
+        $payment = $this->findPayment($invoiceId, ['client', 'agent']);
 
         return view('payment.failed', compact('payment'));
     }
